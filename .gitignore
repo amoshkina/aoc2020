@@ -3,6 +3,8 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+**/*.js*
+
 # User-specific files
 *.rsuser
 *.suo
@@ -38,6 +40,7 @@ bld/
 
 # Visual Studio 2017 auto generated files
 Generated\ Files/
+.vscode
 
 # MSTest test Results
 [Tt]est[Rr]esult*/
