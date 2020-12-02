@@ -6,11 +6,12 @@ const policies: string[] = fs.readFileSync('./day2/input.txt', 'utf-8')
 let validCounter = 0;
 
 for (const policy of policies) {
-    let [, from, to, letter, pass] = policy.match(/(\d+)-(\d+) ([a-z]): (.*)/) || [];
+    let [, i, j, letter, pass] = policy.match(/(\d+)-(\d+) ([a-z]): (.*)/) || [];
 
-    const entries = (pass.match(new RegExp(letter, 'g')) || '').length;
+    const iMatch = pass[parseInt(i)-1] == letter;
+    const jMatch = pass[parseInt(j)-1] == letter;
 
-    if (parseInt(from) <= entries && entries <= parseInt(to)) {
+    if (iMatch && !jMatch || !iMatch && jMatch) {
         validCounter += 1;
     }
 }
