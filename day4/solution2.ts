@@ -7,6 +7,19 @@ class Solver {
         'hgt', 'hcl', 'ecl', 'pid'
     ];
 
+    eyeColors = new Set([
+        'amb', 'blu', 'brn', 
+        'gry', 'grn', 'hzl', 'oth'
+    ]);
+
+    yearRegex = new RegExp(/\d{4}/);
+
+    heightRegex = new RegExp(/(\d{2,3})(cm|in)/);
+
+    colorRegex = new RegExp(/#[0-9a-f]{6}/);
+
+    pidRegex = new RegExp(/[0-9]{9}/);
+
     parsePass(blob: string): Map<string, string> {
         const pairs = blob.split(/\s/);
         const passData: Map<string, string> = new Map();
@@ -21,11 +34,61 @@ class Solver {
 
     isValidPass(passData: Map<string, string>): boolean {
         for (const field of this.requiredFields) {
-            if (!passData.has(field)) {
+            if (!passData.has(field) || !this[field](passData.get(field))) {
                 return false;
             }
         }
         return true;
+    }
+
+    checkYear(value:string, from: number, to: number) {
+        if (!this.yearRegex.test(value)) {
+            return false;
+        }
+
+        const year = parseInt(value);
+        return from <= year && year <= to;
+    }
+
+    byr(value: string): boolean {
+        return this.checkYear(value, 1920, 2002);
+    }
+
+    iyr(value: string): boolean {
+        return this.checkYear(value, 2010, 2020);
+    }
+
+    eyr(value: string): boolean {
+        return this.checkYear(value, 2020, 2030);
+    }
+
+    hgt(value: string): boolean {
+        if (!this.heightRegex.test(value)) {
+            return false;
+        }
+
+        let [, heightStr, unit] = value.match(/(\d{2,3})(cm|in)/);
+
+        let height = parseInt(heightStr);
+
+        if (unit == 'cm') {
+            return 150 < height && height < 193;
+        } else { // unit == 'in'
+            return 59 < height && height < 76
+        }
+
+    }
+
+    hcl(value: string): boolean {
+        return this.colorRegex.test(value);
+    }
+
+    ecl(value: string): boolean {
+        return this.eyeColors.has(value);
+    }
+
+    pid(value: string): boolean {
+        return this.pidRegex.test(value);
     }
 
 
@@ -50,3 +113,5 @@ class Solver {
 
 
 new Solver().run('./day4/input.txt')
+
+// console.log(new Solver().colorRegex.test('123abc'))
