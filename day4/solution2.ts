@@ -12,16 +12,18 @@ class Solver {
         'gry', 'grn', 'hzl', 'oth'
     ]);
 
-    yearRegex = new RegExp(/\d{4}/);
+    whitespaceRegex = new RegExp(/\s/);
 
-    heightRegex = new RegExp(/(\d{2,3})(cm|in)/);
+    yearRegex = new RegExp(/^\d{4}$/);
 
-    colorRegex = new RegExp(/#[0-9a-f]{6}/);
+    heightRegex = new RegExp(/^(\d{2,3})(cm|in)$/);
 
-    pidRegex = new RegExp(/[0-9]{9}/);
+    colorRegex = new RegExp(/^#[0-9a-f]{6}$/);
+
+    pidRegex = new RegExp(/^[0-9]{9}$/);
 
     parsePass(blob: string): Map<string, string> {
-        const pairs = blob.split(/\s/);
+        const pairs = blob.split(this.whitespaceRegex);
         const passData: Map<string, string> = new Map();
         pairs.forEach(
             pair => {
@@ -67,14 +69,14 @@ class Solver {
             return false;
         }
 
-        let [, heightStr, unit] = value.match(/(\d{2,3})(cm|in)/);
+        let [, heightStr, unit] = value.match(this.heightRegex);
 
         let height = parseInt(heightStr);
 
         if (unit == 'cm') {
-            return 150 < height && height < 193;
+            return 150 <= height && height <= 193;
         } else { // unit == 'in'
-            return 59 < height && height < 76
+            return 59 <= height && height <= 76
         }
 
     }
@@ -113,5 +115,3 @@ class Solver {
 
 
 new Solver().run('./day4/input.txt')
-
-// console.log(new Solver().colorRegex.test('123abc'))
