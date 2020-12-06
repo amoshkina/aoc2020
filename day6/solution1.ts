@@ -15,7 +15,6 @@ class Solver {
                     ch => uniques.add(ch)
                 );
             }
-            // console.log(uniques)
             counter += uniques.size;
         }
 
