@@ -30,16 +30,41 @@ class Solver {
             const instruction: Instruction = program[this.iptr];
             this[instruction.cmd](instruction.param);
         }
-
         return this.iptr == program.length
+    }
+
+    flipCmd(cmd: string): string {
+        if (cmd == 'nop') {
+            return 'jmp';
+        }
+
+        if (cmd == 'jmp') {
+            return 'nop';
+        }
+
+        return cmd;
     }
 
     run(filename: string) {
         const program: Instruction[] = this.parseProgram(filename);
         
-        this.exec(program);
-
-        console.log(`Answer: ${this.accumulator}`);
+        for (let instruction of program) {
+            if (instruction.cmd == 'acc'){
+                continue;
+            }
+            instruction.cmd = this.flipCmd(instruction.cmd);
+            
+            this.accumulator = 0;
+            this.iptr = 0;
+            this.executed = new Set();
+            if (this.exec(program)) {
+                console.log(`Answer: ${this.accumulator}`);
+                return;
+            }
+            instruction.cmd = this.flipCmd(instruction.cmd);
+        }
+        console.log('ALARM! Unreachable code reached!');
+        
     }
 
     nop(param: number) {
