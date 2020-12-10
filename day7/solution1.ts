@@ -8,7 +8,7 @@ interface BagNode {
 
 interface QueueItem {
     node: BagNode,
-    len: number;
+    path: Set<string>;
 }
 
 
@@ -71,27 +71,39 @@ class Solver {
         return bagLookup;
     }
 
-    traverseBagTree(queue: QueueItem[], visited: Set<string>) {
-        let result: number = 0;
+    traverseBagTree(queue: QueueItem[], visited: Set<string>, leads: Set<string>) {
+        // let result: Set<string> = new Set();
         while (queue.length > 0) {
             const item = queue.pop();
-            const [node, len] = [item.node, item.len];
+            const [node, path] = [item.node, item.path];
             // console.log('\n');
-            // console.log(node, `: processing with path len ${len}`);
+            // console.log('Got node: ', node);
+
+            if (node.bagName == this.keyBag || leads.has(node.bagName)) {
+                // console.log('got to leads', leads);
+                // result = new Set([...result, ...path]);
+                leads = new Set([...leads, ...path]);
+                continue;
+            }
+
             if (visited.has(node.bagName)) {
+                // console.log('got to visited');
                 continue;
             }
             visited.add(node.bagName);
 
             for (const child of node.children) {
                 // console.log('Got child: ', child);
-                if (child.bagName == this.keyBag) {
-                    result += len;
+                if (node.bagName == this.keyBag || leads.has(node.bagName)) {
+                    // result = new Set([...result, ...path]);
+                    leads = new Set([...leads, ...path]);
                 }
-                queue.push({node: child, len: len+1});
+                const pathClone: Set<string> = new Set(path);
+                pathClone.add(node.bagName);
+                queue.push({node: child, path: pathClone});
             }
         }
-        return result;
+        return leads;
 
     }
 
@@ -103,21 +115,29 @@ class Solver {
         const bagLookup: Map<string, BagNode> = this.buildBagTree(rules);
 
         const visited: Set<string> = new Set();
+        let leads: Set<string> = new Set();
+        // leads.add(this.keyBag);
 
-        let result: number = 0;
+        // let result: Set<string> = new Set();
         for (const node of bagLookup.values()) {
+            // if (visited.has(node.bagName)) {
+            //     continue;
+            // }
+
             if (!node.isRoot) {
                 continue;
             }
 
             // console.log('Starting traversing from: ', node);
-            result += this.traverseBagTree([{node, len: 1}], visited)
+            // result = new Set([...result, ...this.traverseBagTree([{node, path: new Set()}], visited, leads)]);
+
+            leads = this.traverseBagTree([{node, path: new Set()}], visited, leads)
         }
         // console.log(`visited size: ${visited.size}, visited: `)
         // for (const v of visited.values()) {
         //     console.log(v, v.length)
         // }
-        console.log(`Answer: ${result}`);
+        console.log(`Answer: ${leads.size}`, leads);
     }
 }
 
